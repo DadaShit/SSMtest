@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+<script type="text/javascript" src="js/jquery.1.11.3.min.js"></script>
+<script type="text/javascript">
+	//定义一个匿名函数，并在文档载入完毕立即执行
+	$(function(){
+		$.post("getAllProvinces",function(data){
+			for(var i in data){
+				$("#provinces").append("<option value='"+data[i].pid+"'>"+data[i].pname+"</option>");
+			}
+		},"json");
+	});
+	function provinceChange(){
+		if ($("#provinces").val()=='null') {
+			$("#city").html("<option value='null'>请选择市</option>");
+			$("#area").html("<option value='null'>请选择区</option>");
+			$("#village").html("<option value='null'>请选择小区</option>");
+			return;
+		}
+		$.post("getProvinceById",{"pid":$("#provinces").val()},function(data){
+			var cties=data.cities;
+			$("#city").html("");
+			$("#city").html("<option value='null'>请选择市</option>");
+			for(var i in cties){
+				$("#city").append("<option value='"+cties[i].cid+"'>"+cties[i].cname+"</option>");
+			}
+		},"json");
+		
+	}
+	function cityChange(){
+		if ($("#city").val()=='null') {
+			$("#area").html("<option value='null'>请选择区</option>");
+			$("#village").html("<option value='null'>请选择小区</option>");
+			return;
+		}
+		$.post("getCityById",{"cid":$("#city").val()},function(data){
+			var areas=data.areas;
+			$("#area").html("");
+			$("#area").html("<option value='null'>请选择区</option>");
+			for(var i in areas){
+				$("#area").append("<option value='"+areas[i].aid+"'>"+areas[i].aname+"</option>");
+			}
+		},"json");
+		
+	}
+	function areaChange(){
+		if ($("#area").val()=='null') {
+			$("#village").html("<option value='null'>请选择小区</option>");
+			return;
+		}
+		$.post("getAreaById",{"aid":$("#area").val()},function(data){
+			var villages=data.villages;
+			$("#village").html("");
+			$("#village").html("<option value='null'>请选择小区</option>");
+			for(var i in villages){
+				$("#village").append("<option value='"+villages[i].vid+"'>"+villages[i].vname+"</option>");
+			}
+		},"json");
+		
+	}
+</script>
+</head>
+<body>
+<form action="regist" method="post">
+	用户名:<input type="text" name="uname"/><br/>
+	密码:<input type="password" name="upass"/><br/>
+	昵称:<input type="text" name="nickname"/><br/>
+	邮箱:<input type="text" name="uemail"/><br/>
+	电话:<input type="text" name="phone"/><br/>
+	地址:<select id="provinces" onchange="javascript:provinceChange()">
+		<option value="null">请选择省份</option>
+	</select>
+	<select id="city" onchange="javascript:cityChange()">
+	<option value="null">请选择市</option>
+	</select>
+	<select id="area" onchange="javascript:areaChange()">
+	<option value="null">请选择区</option>
+	</select>
+	<select id="village" name="vid">
+	<option value="null">请选择小区</option>
+	</select><br/>
+	具体地址:<input type="text" name="address"/><br/>
+	<input type="submit" value="注册"/>
+</form>
+</body>
+</html>

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<!-- mapper的namespace必须映射为AddressMapper接口的全路径，否则Spring不会动态代理(JDK动态代理)实现类对象 -->
+<mapper namespace="com.redis.mapper.AddressMapper">
+	<select id="getAllProvinces" resultType="Province">
+		select pid,pname from province
+	</select>
+	<select id="getpProvinceById" resultMap="provinceMap" parameterType="int">
+		select province.pid,pname,cities.cid,cname,areas.aid,aname,village.vid,vname  from province left join cities on province.pid=cities.pid left join areas on cities.cid=areas.cid left join village on village.aid=areas.aid where province.pid=#{pid}
+	</select>
+	<resultMap type="Province" id="provinceMap">
+		<id property="pid" column="pid"/>
+		<result property="pname" column="pname"/>
+		<collection property="cities" javaType="java.util.List" ofType="City">
+			<id property="cid" column="cid"/>
+			<result property="cname" column="cname"/>
+		</collection>
+		<collection property="areas" javaType="java.util.List" ofType="Area">
+			<id property="aid" column="aid"/>
+			<result property="aname" column="aname"/>
+		</collection>
+		<collection property="villages" javaType="java.util.List" ofType="Village">
+			<id property="vid" column="vid"/>
+			<result property="vname" column="vname"/>
+		</collection>
+	</resultMap>
+	<select id="getCityById" resultMap="cityMap" parameterType="int">
+		select cities.cid,cname,aid,aname from cities left join areas on cities.cid=areas.cid where cities.cid=#{cid}
+	</select>
+	<resultMap type="City" id="cityMap">
+		<id property="cid" column="cid"/>
+		<result property="cname" column="cname"/>
+		<collection property="areas" javaType="java.util.List" ofType="Area">
+			<id property="aid" column="aid"/>
+			<result property="aname" column="aname"/>
+		</collection>
+	</resultMap>
+	<select id="getaAreaById" resultMap="areaMap" parameterType="int">
+		select areas.aid,aname,vid,vname from areas left join village on areas.aid=village.aid where areas.aid=#{aid}
+	</select>
+	<resultMap type="Area" id="areaMap">
+		<id property="aid" column="aid"/>
+		<result property="aname" column="aname"/>
+		<collection property="villages" javaType="java.util.List" ofType="Village">
+			<id property="vid" column="vid"/>
+			<result property="vname" column="vname"/>
+		</collection>
+	</resultMap>
+	<select id="getVillageById" resultMap="villageMap" parameterType="int">
+		select province.pid,pname,cities.cid,cname,areas.aid,aname,village.vid,vname from village left join areas on areas.aid=village.aid 
+		left join cities on cities.cid= areas.cid left join province on province.pid= cities.pid where village.vid=#{vid}
+	</select>
+	<resultMap type="Village" id="villageMap">
+		<id property="vid" column="vid"/>
+		<result property="vname" column="vname"/>
+		<association property="area" javaType="Area">
+			<id property="aid" column="aid"/>
+			<result property="aname" column="aname"/>
+		</association>
+		<association property="city" javaType="City">
+			<id property="cid" column="cid"/>
+			<result property="cname" column="cname"/>
+		</association>
+		<association property="province" javaType="Province">
+			<id property="pid" column="pid"/>
+			<result property="pname" column="pname"/>
+		</association>
+	</resultMap>
+</mapper>
